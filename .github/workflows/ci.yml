@@ -14,16 +14,26 @@ jobs:
 
       - name: Prepare .env
         run: |
-          cp src/.env.example src/.env 2>/dev/null || {
-            mkdir -p src
-            echo "APP_KEY=base64:$(openssl rand -base64 32)" > src/.env
-            echo "APP_ENV=testing"  >> src/.env
-            echo "APP_DEBUG=false"  >> src/.env
-          }
+          mkdir -p src
+          if [ -f src/.env.example ]; then
+            cp src/.env.example src/.env
+          else
+            {
+              echo "APP_KEY=base64:$(openssl rand -base64 32)"
+              echo "APP_ENV=testing"
+              echo "APP_DEBUG=false"
+              echo "DB_CONNECTION=mysql"
+              echo "DB_HOST=db"
+              echo "DB_PORT=3306"
+              echo "DB_DATABASE=hxhc"
+              echo "DB_USERNAME=hxhc"
+              echo "DB_PASSWORD=secret"
+            } > src/.env
+          fi
 
       - uses: docker/setup-buildx-action@v3
 
-      - name: Build and start stack
+      - name: Build & start stack
         run: docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build
 
       - name: Run migrations
