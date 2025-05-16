@@ -11,8 +11,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: docker/setup-buildx-action@v3
+
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          working-directory: src
+          composer-options: --no-dev --prefer-dist --optimize-autoloader
 
       - name: Create CI .env
         run: |
@@ -37,12 +42,9 @@ jobs:
             if curl -fs http://localhost:8080/cards >/dev/null; then
               echo "API ready"; exit 0
             fi
-            echo "Waiting ($i/20)…"
-            sleep 5
+            echo "Waiting ($i/20)…"; sleep 5
           done
-          echo "API did not respond in time"
-          docker compose logs
-          exit 1
+          echo "API did not respond in time"; docker compose logs; exit 1
 
       - name: Smoke check
         run: curl -s http://localhost:8080/cards | jq .
