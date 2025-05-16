@@ -14,6 +14,20 @@ jobs:
 
       - uses: docker/setup-buildx-action@v3
 
+      - name: Create CI .env
+        run: |
+          cat > src/.env <<'EOF'
+          APP_KEY=base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          APP_ENV=local
+          APP_DEBUG=true
+          DB_CONNECTION=mysql
+          DB_HOST=db
+          DB_PORT=3306
+          DB_DATABASE=hxhc
+          DB_USERNAME=hxhc
+          DB_PASSWORD=secret
+          EOF
+
       - name: docker compose up
         run: docker compose up -d --build
 
@@ -26,7 +40,9 @@ jobs:
             echo "Waiting ($i/20)…"
             sleep 5
           done
-          echo "API did not respond in time"; docker compose logs; exit 1
+          echo "API did not respond in time"
+          docker compose logs
+          exit 1
 
       - name: Smoke check
         run: curl -s http://localhost:8080/cards | jq .
