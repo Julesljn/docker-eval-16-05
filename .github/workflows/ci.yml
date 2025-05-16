@@ -9,8 +9,12 @@ jobs:
   test-stack:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - name: Fake .env for CI
+        run: |
+          mkdir -p src
+          printf "APP_KEY=base64:dummykey=\nAPP_ENV=testing\n" > src/.env
 
       - name: Build & start stack
         run: |
@@ -23,13 +27,10 @@ jobs:
         run: |
           for i in {1..20}; do
             if curl -fs http://localhost:8080/cards >/dev/null; then
-              echo "API ready ✅"
               exit 0
             fi
-            echo "Waiting ($i/20)…"
             sleep 5
           done
-          echo "API did not respond in time ❌"
           docker compose -f docker-compose.yml -f docker-compose.ci.yml logs
           exit 1
 
