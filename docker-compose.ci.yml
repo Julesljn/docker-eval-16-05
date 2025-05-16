@@ -16,6 +16,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    volumes: []
     depends_on:
       db:
         condition: service_healthy
