@@ -9,24 +9,22 @@ RUN composer install \
 
 FROM php:8.3-fpm-alpine
 
-RUN apk add --no-cache icu-dev zlib-dev \
+RUN apk add --no-cache icu-dev zlib-dev git zip unzip \
  && docker-php-ext-install intl pdo_mysql
 
 WORKDIR /var/www
 
+COPY --from=deps /usr/bin/composer /usr/bin/composer
+
 COPY src .
 COPY --from=deps /app/vendor ./vendor
 
-RUN cp -a vendor /tmp/vendor-cache
-
-RUN chown -R www-data:www-data storage bootstrap/cache || true
-
 RUN printf '%s\n' \
   '#!/bin/sh' \
+  'set -e' \
   'if [ ! -f /var/www/vendor/autoload.php ]; then' \
-  '  echo "Restoring vendor directory…";' \
-  '  mkdir -p /var/www/vendor;' \
-  '  cp -a /tmp/vendor-cache/. /var/www/vendor/;' \
+  '  echo "vendor/ absent → composer install…";' \
+  '  composer install --no-dev --prefer-dist --no-interaction --quiet --optimize-autoloader;' \
   'fi' \
   'exec php-fpm' \
   > /usr/local/bin/entrypoint.sh \
