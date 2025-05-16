@@ -1,0 +1,17 @@
+[
+    {
+      "id": 1,
+      "name": "Angel's Breath",
+      "description": "Heals all wounds and illnesses instantly. Single-use."
+    },
+    {
+      "id": 2,
+      "name": "Blue Planet",
+      "description": "A beautiful gem that shines blue under the moonlight."
+    },
+    {
+      "id": 3,
+      "name": "Breath of Archangel",
+      "description": "Revives a player who has died within the game."
+    }
+]
