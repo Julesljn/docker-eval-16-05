@@ -2,20 +2,14 @@ version: "3.9"
 
 services:
   app:
-    env_file: []
+    env_file: null
+
     environment:
-      APP_ENV: testing
       APP_KEY: base64:dummykey=
+      APP_ENV: testing
       APP_DEBUG: "true"
 
     volumes: []
-
-  db:
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: hxhc
-      MYSQL_USER: hxhc
-      MYSQL_PASSWORD: secret
 
   nginx:
     volumes: []

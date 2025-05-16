@@ -8,39 +8,35 @@ on:
 jobs:
   test-stack:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Set up Docker Compose
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build images
+      - name: Build & start stack
         run: |
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.ci.yml \
-            build
-
-      - name: Launch stack
-        run: |
-          docker compose \
-            -f docker-compose.yml \
-            -f docker-compose.ci.yml \
-            up -d
+            up -d --build
 
       - name: Wait for /cards endpoint
         run: |
           for i in {1..20}; do
             if curl -fs http://localhost:8080/cards >/dev/null; then
-              echo "API ready ✅"; exit 0
+              echo "API ready ✅"
+              exit 0
             fi
             echo "Waiting ($i/20)…"
             sleep 5
           done
           echo "API did not respond in time ❌"
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml logs
+          exit 1
+
+      - name: Shutdown stack
+        if: always()
+        run: |
           docker compose \
             -f docker-compose.yml \
-            -f docker-compose.ci.yml logs
-          exit 1
+            -f docker-compose.ci.yml \
+            down -v
