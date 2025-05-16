@@ -39,7 +39,7 @@ jobs:
       - name: Run migrations
         run: |
           docker compose -f docker-compose.yml -f docker-compose.ci.yml \
-            exec -T app php artisan migrate --force --no-interaction
+            exec -T php artisan migrate --force --no-interaction
 
       - name: Wait for /cards endpoint
         run: |
