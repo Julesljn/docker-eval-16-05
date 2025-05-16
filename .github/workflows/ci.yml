@@ -1,54 +1,46 @@
-name: Docker Build & Smoke-Test
+name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
 
 jobs:
-  compose-up:
+  test-stack:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
+      - name: Checkout source
+        uses: actions/checkout@v4
 
-      - name: Install Composer dependencies
-        uses: ramsey/composer-install@v3
-        with:
-          working-directory: src
-          composer-options: --no-dev --prefer-dist --optimize-autoloader
+      - name: Set up Docker Compose
+        uses: docker/setup-buildx-action@v3
 
-      - name: Create CI .env
+      - name: Build images
         run: |
-          cat > src/.env <<'EOF'
-          APP_KEY=base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-          APP_ENV=local
-          APP_DEBUG=true
-          DB_CONNECTION=mysql
-          DB_HOST=db
-          DB_PORT=3306
-          DB_DATABASE=hxhc
-          DB_USERNAME=hxhc
-          DB_PASSWORD=secret
-          EOF
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.ci.yml \
+            build
 
-      - name: docker compose up
-        run: docker compose up -d --build
+      - name: Launch stack
+        run: |
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.ci.yml \
+            up -d
 
-      - name: Wait for API
+      - name: Wait for /cards endpoint
         run: |
           for i in {1..20}; do
             if curl -fs http://localhost:8080/cards >/dev/null; then
-              echo "API ready"; exit 0
+              echo "API ready ✅"; exit 0
             fi
-            echo "Waiting ($i/20)…"; sleep 5
+            echo "Waiting ($i/20)…"
+            sleep 5
           done
-          echo "API did not respond in time"; docker compose logs; exit 1
-
-      - name: Smoke check
-        run: curl -s http://localhost:8080/cards | jq .
-
-      - name: docker compose down
-        if: always()
-        run: docker compose down -v
+          echo "API did not respond in time ❌"
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.ci.yml logs
+          exit 1
