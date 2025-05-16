@@ -6,11 +6,12 @@ RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-interacti
 
 FROM php:8.3-fpm-alpine
 
-RUN apk add --no-cache icu-data icu-libs zlib \
-    && docker-php-ext-install intl pdo_mysql
+RUN apk add --no-cache icu-libs icu-data-full zlib \
+    && apk add --no-cache --virtual .build-deps icu-dev zlib-dev \
+    && docker-php-ext-install intl pdo_mysql \
+    && apk del .build-deps
 
 WORKDIR /var/www
-
 COPY src .
 COPY --from=deps /app/vendor ./vendor
 
