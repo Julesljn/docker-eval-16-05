@@ -18,7 +18,7 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./src/.env
-    volumes: []
+    volumes: null
     depends_on:
       db:
         condition: service_healthy

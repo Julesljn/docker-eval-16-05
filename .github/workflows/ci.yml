@@ -14,26 +14,28 @@ jobs:
 
       - name: Prepare .env
         run: |
-          mkdir -p src
-          {
-            echo "APP_KEY=base64:$(openssl rand -base64 32)"
-            echo "APP_ENV=testing"
-            echo "APP_DEBUG=false"
-            echo "DB_CONNECTION=mysql"
-            echo "DB_HOST=db"
-            echo "DB_PORT=3306"
-            echo "DB_DATABASE=hxhc"
-            echo "DB_USERNAME=hxhc"
-            echo "DB_PASSWORD=secret"
-          } > src/.env
+          cp src/.env.example src/.env 2>/dev/null || {
+            mkdir -p src
+            echo "APP_KEY=base64:$(openssl rand -base64 32)" > src/.env
+            echo "APP_ENV=testing" >> src/.env
+            echo "APP_DEBUG=false"  >> src/.env
+          }
 
       - uses: docker/setup-buildx-action@v3
 
-      - name: Build & start stack
+      - name: Build and start stack
         run: docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build
 
+      - name: Composer install inside the container
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml \
+            exec -T app composer install \
+            --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
+
       - name: Run migrations
-        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml exec -T app php artisan migrate --force --no-interaction
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml \
+            exec -T app php artisan migrate --force --no-interaction
 
       - name: Wait for /cards endpoint
         run: |
