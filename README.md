@@ -1,6 +1,6 @@
-# API de Cartes
+# API de Cartes HxH
 
-API simple qui retourne des cartes au format JSON.
+API avec Laravel qui retourne des cartes Hxh au format JSON.
 
 ## Installation
 
@@ -23,17 +23,3 @@ Pour tester :
 ```bash
 curl http://localhost:8080/api/cards
 ```
-
-
-## Commandes utiles
-
-```bash
-# Arrêter l'application
-docker-compose down
-
-# Voir les logs
-docker-compose logs -f
-
-# Redémarrer l'application
-docker-compose restart
-``` 
