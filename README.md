@@ -5,10 +5,6 @@ API simple qui retourne des cartes au format JSON.
 ## Installation
 
 ```bash
-# Cloner le repo
-git clone [URL_DU_REPO]
-cd [NOM_DU_REPO]
-
 # Démarrer l'application
 docker-compose up -d
 
@@ -21,7 +17,7 @@ docker-compose exec app php artisan migrate
 
 ## Utilisation
 
-L'API est accessible à l'adresse : http://localhost:8080/api/cards
+API : http://localhost:8080/api/cards
 
 Pour tester :
 ```bash
