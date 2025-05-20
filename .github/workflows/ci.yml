@@ -39,12 +39,12 @@ jobs:
       - name: Run migrations
         run: |
           docker compose -f docker-compose.yml -f docker-compose.ci.yml \
-            exec -T php artisan migrate --force --no-interaction
+            exec -T app php artisan migrate --force --no-interaction
 
-      - name: Wait for /cards endpoint
+      - name: Wait for /api/cards endpoint
         run: |
           for i in {1..20}; do
-            if curl -fs http://localhost:8080/cards >/dev/null; then
+            if curl -fs http://localhost:8080/api/cards >/dev/null; then
               echo "API ready ✅"; exit 0
             fi
             echo "Waiting ($i/20)…"
