@@ -34,12 +34,15 @@ jobs:
       - uses: docker/setup-buildx-action@v3
 
       - name: Build & start stack
-        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build
+          # Attendre que le conteneur app soit prêt
+          sleep 10
 
       - name: Install dependencies
         run: |
           docker compose -f docker-compose.yml -f docker-compose.ci.yml \
-            exec -T app composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+            exec -T app composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts --no-plugins
 
       - name: Run migrations
         run: |
